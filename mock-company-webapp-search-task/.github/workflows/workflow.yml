@@ -1,0 +1,47 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up JDK 11 (adjust version if needed)
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'  # Use 'adopt' or 'temurin' or 'zulu' as needed
+
+      # Step 3: Build the project (equivalent to 'sh ./gradlew assemble')
+      - name: Build project
+        run: ./gradlew assemble
+
+      # Step 4: Run tests (equivalent to 'sh ./gradlew test')
+      - name: Run tests
+        run: ./gradlew test
+
+      # Step 5: Archive test results (equivalent to 'junit' in Jenkinsfile)
+      - name: Archive test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: build/test-results/**/*.xml
+
+      # Step 6: Archive the build artifacts (equivalent to 'archiveArtifacts' in Jenkinsfile)
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: build/libs/**/*.jar
